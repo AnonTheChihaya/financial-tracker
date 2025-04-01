@@ -5,6 +5,7 @@ import org.segroup50.financialtracker.data.dao.UserDao;
 import org.segroup50.financialtracker.data.model.User;
 import org.segroup50.financialtracker.service.validation.user.UserValidation;
 import org.segroup50.financialtracker.service.validation.ValidationResult;
+import org.segroup50.financialtracker.view.auth.register.RegisterFrame;
 import org.segroup50.financialtracker.view.components.InputField;
 
 import javax.swing.*;
@@ -54,7 +55,8 @@ public class LoginPanel extends JPanel {
         JCheckBox agreeCheckbox = new JCheckBox(
                 "<html><body style='margin-left: 5px; width: 200px'>" +
                         "I have read and agree to the Terms of Service and Privacy Policy" +
-                        "</body></html>");
+                        "</body></html>"
+        );
         add(agreeCheckbox, gbc);
 
         // Continue button
@@ -70,7 +72,8 @@ public class LoginPanel extends JPanel {
             String password = passwordField.getText();
 
             // Validate input format first
-            ValidationResult validationResult = UserValidation.validateLogin(username, password);
+            ValidationResult validationResult =
+                    UserValidation.validateLogin(username, password);
 
             if (!validationResult.isValid()) {
                 JOptionPane.showMessageDialog(this,
@@ -112,7 +115,10 @@ public class LoginPanel extends JPanel {
         add(registerButton, gbc);
 
         registerButton.addActionListener(e -> {
-
+            Window currentFrame = SwingUtilities.getWindowAncestor(this);
+            RegisterFrame registerFrame = new RegisterFrame();
+            currentFrame.dispose();
+            registerFrame.setVisible(true);
         });
     }
 
