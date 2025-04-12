@@ -59,7 +59,8 @@ public class MainFrame extends JFrame {
         // Make the component fill the available space
         component.setPreferredSize(new Dimension(
                 Integer.MAX_VALUE,
-                Integer.MAX_VALUE));
+                Integer.MAX_VALUE
+        ));
         tabPanel.add(component, BorderLayout.CENTER);
 
         tabbedPane.addTab(title, tabPanel);
