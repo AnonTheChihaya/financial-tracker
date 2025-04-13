@@ -20,6 +20,8 @@ public class DashboardPanel extends JPanel {
     private AccountDao accountDao;
     private TransactionDao transactionDao;
     private JLabel totalAssetsLabel;
+    private JTable recentTransactionsTable;
+    private JButton refreshButton;
 
     public DashboardPanel() {
         accountDao = new AccountDao();
@@ -28,7 +30,7 @@ public class DashboardPanel extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Create header panel with title
+        // Create header panel with title and refresh button
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
         headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -39,6 +41,16 @@ public class DashboardPanel extends JPanel {
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 20));
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         headerPanel.add(titleLabel);
+
+        headerPanel.add(Box.createHorizontalGlue());
+
+        // Add refresh button
+        refreshButton = new JButton("Refresh");
+        refreshButton.setBackground(new Color(55, 90, 129));
+        refreshButton.setForeground(Color.WHITE);
+        refreshButton.setMaximumSize(new Dimension(100, 30));
+        refreshButton.addActionListener(e -> loadDashboardData());
+        headerPanel.add(refreshButton);
 
         add(headerPanel);
         add(Box.createVerticalStrut(20));
@@ -61,6 +73,47 @@ public class DashboardPanel extends JPanel {
         assetsPanel.add(totalAssetsLabel);
 
         add(assetsPanel);
+        add(Box.createVerticalStrut(20));
+
+        // Recent Transactions Section
+        JPanel transactionsPanel = new JPanel();
+        transactionsPanel.setLayout(new BoxLayout(transactionsPanel, BoxLayout.Y_AXIS));
+        transactionsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel transactionsTitleLabel = new JLabel("Recent Transactions (Last 30 Days)");
+        transactionsTitleLabel.setFont(transactionsTitleLabel.getFont().deriveFont(Font.BOLD, 16));
+        transactionsTitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        transactionsPanel.add(transactionsTitleLabel);
+
+        add(transactionsTitleLabel);
+        add(Box.createVerticalStrut(10));
+
+        // Create transaction table
+        String[] columnNames = { "Date", "Amount", "Type", "Category", "Account" };
+        DefaultTableModel model = new DefaultTableModel(new Object[][] {}, columnNames) {
+            @Override
+            public Class<?> getColumnClass(int column) {
+                return column == 1 ? Double.class : String.class;
+            }
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        recentTransactionsTable = new JTable(model);
+        recentTransactionsTable.getColumnModel().getColumn(1).setCellRenderer(new AmountCellRenderer());
+        recentTransactionsTable.setAutoCreateRowSorter(true);
+        recentTransactionsTable.setFillsViewportHeight(true);
+        recentTransactionsTable.setRowHeight(30);
+
+        JScrollPane scrollPane = new JScrollPane(recentTransactionsTable);
+        scrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+        scrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+        transactionsPanel.add(scrollPane);
+
+        add(transactionsPanel);
 
         // Load data
         loadDashboardData();
@@ -71,13 +124,77 @@ public class DashboardPanel extends JPanel {
             return;
         }
 
-        String userId = CurrentUserConfig.getCurrentUser().getId();
+        // Show loading state
+        refreshButton.setEnabled(false);
+        refreshButton.setText("Refreshing...");
 
-        // Calculate total assets
-        List<Account> accounts = accountDao.getAccountsByUserId(userId);
-        double totalAssets = accounts.stream().mapToDouble(Account::getBalance).sum();
+        // Use SwingWorker to load data in background
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                String userId = CurrentUserConfig.getCurrentUser().getId();
 
-        // Update total assets
-        totalAssetsLabel.setText(String.format("$%.2f", totalAssets));
+                // Calculate total assets
+                List<Account> accounts = accountDao.getAccountsByUserId(userId);
+                double totalAssets = accounts.stream().mapToDouble(Account::getBalance).sum();
+
+                // Load recent transactions (last 30 days)
+                LocalDate thirtyDaysAgo = LocalDate.now().minusDays(30);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String startDate = thirtyDaysAgo.format(formatter);
+                String endDate = LocalDate.now().format(formatter);
+
+                List<Transaction> recentTransactions = transactionDao.getTransactionsByDateRange(startDate, endDate)
+                        .stream()
+                        .filter(t -> t.getUserId().equals(userId))
+                        .limit(5) // Show only 5 most recent
+                        .toList();
+
+                // Update UI in event dispatch thread
+                SwingUtilities.invokeLater(() -> {
+                    // Update total assets
+                    totalAssetsLabel.setText(String.format("$%.2f", totalAssets));
+
+                    // Update transactions table
+                    DefaultTableModel model = (DefaultTableModel) recentTransactionsTable.getModel();
+                    model.setRowCount(0);
+
+                    for (Transaction transaction : recentTransactions) {
+                        String accountName = accountDao.getAccountById(transaction.getAccountId()).getName();
+                        model.addRow(new Object[] {
+                                transaction.getDate(),
+                                transaction.getAmount(),
+                                transaction.getType(),
+                                transaction.getCategory(),
+                                accountName
+                        });
+                    }
+                });
+
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                refreshButton.setText("Refresh");
+                refreshButton.setEnabled(true);
+            }
+        }.execute();
+    }
+
+    private static class AmountCellRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            if (value instanceof Double) {
+                double amount = (Double) value;
+                c.setForeground(amount < 0 ? Color.RED : new Color(0, 180, 0));
+            }
+
+            ((JLabel) c).setHorizontalAlignment(JLabel.RIGHT);
+            return c;
+        }
     }
 }
