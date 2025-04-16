@@ -21,6 +21,7 @@ public class DashboardPanel extends JPanel {
     private TransactionDao transactionDao;
     private JLabel totalAssetsLabel;
     private JTable recentTransactionsTable;
+    private JPanel accountsPanel;
     private JButton refreshButton;
 
     public DashboardPanel() {
@@ -114,6 +115,37 @@ public class DashboardPanel extends JPanel {
         transactionsPanel.add(scrollPane);
 
         add(transactionsPanel);
+        add(Box.createVerticalStrut(20));
+
+        // Accounts Section
+        JPanel accountsTitlePanel = new JPanel();
+        accountsTitlePanel.setLayout(new BoxLayout(accountsTitlePanel, BoxLayout.X_AXIS));
+        accountsTitlePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel accountsTitleLabel = new JLabel("Your Accounts");
+        accountsTitleLabel.setFont(accountsTitleLabel.getFont().deriveFont(Font.BOLD, 16));
+        accountsTitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        accountsTitlePanel.add(accountsTitleLabel);
+
+        accountsTitlePanel.add(Box.createHorizontalGlue());
+
+        JButton viewAllButton = new JButton("View All");
+        viewAllButton.setForeground(new Color(55, 90, 129));
+        viewAllButton.setBorderPainted(false);
+        viewAllButton.setContentAreaFilled(false);
+        viewAllButton.addActionListener(e -> {
+            // TODO: Implement view all accounts functionality
+            JOptionPane.showMessageDialog(this, "View all accounts functionality would go here");
+        });
+        accountsTitlePanel.add(viewAllButton);
+
+        add(accountsTitlePanel);
+        add(Box.createVerticalStrut(10));
+
+        accountsPanel = new JPanel();
+        accountsPanel.setLayout(new BoxLayout(accountsPanel, BoxLayout.Y_AXIS));
+        accountsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        add(accountsPanel);
 
         // Load data
         loadDashboardData();
@@ -150,6 +182,12 @@ public class DashboardPanel extends JPanel {
                         .limit(5) // Show only 5 most recent
                         .toList();
 
+                // Load top 3 accounts
+                List<Account> topAccounts = accounts.stream()
+                        .sorted((a1, a2) -> Double.compare(a2.getBalance(), a1.getBalance()))
+                        .limit(3)
+                        .toList();
+
                 // Update UI in event dispatch thread
                 SwingUtilities.invokeLater(() -> {
                     // Update total assets
@@ -169,6 +207,24 @@ public class DashboardPanel extends JPanel {
                                 accountName
                         });
                     }
+
+                    // Update accounts panel
+                    accountsPanel.removeAll();
+                    if (topAccounts.isEmpty()) {
+                        JLabel noAccountsLabel = new JLabel("No accounts found");
+                        noAccountsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                        accountsPanel.add(noAccountsLabel);
+                    } else {
+                        for (Account account : topAccounts) {
+                            JPanel accountCard = createAccountCard(account);
+                            accountCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+                            accountsPanel.add(accountCard);
+                            accountsPanel.add(Box.createVerticalStrut(10));
+                        }
+                    }
+
+                    accountsPanel.revalidate();
+                    accountsPanel.repaint();
                 });
 
                 return null;
@@ -180,6 +236,60 @@ public class DashboardPanel extends JPanel {
                 refreshButton.setEnabled(true);
             }
         }.execute();
+    }
+
+    private JPanel createAccountCard(Account account) {
+        JPanel card = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // Draw rounded rectangle border
+                g2.setColor(new Color(180, 180, 180)); // Light gray border
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
+                g2.dispose();
+            }
+        };
+
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15)); // Internal padding
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+        card.setOpaque(false); // Make panel transparent for rounded corners to show
+
+        // Add a white background panel inside for content
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setOpaque(false); // Transparent background
+
+        JPanel topRow = new JPanel();
+        topRow.setLayout(new BoxLayout(topRow, BoxLayout.X_AXIS));
+        topRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        topRow.setOpaque(false); // Transparent background
+
+        JLabel nameLabel = new JLabel(account.getName());
+        nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 14));
+        topRow.add(nameLabel);
+
+        topRow.add(Box.createHorizontalGlue());
+
+        JLabel typeLabel = new JLabel(account.getType());
+        typeLabel.setFont(typeLabel.getFont().deriveFont(Font.PLAIN, 12));
+        typeLabel.setForeground(Color.GRAY);
+        topRow.add(typeLabel);
+
+        contentPanel.add(topRow);
+        contentPanel.add(Box.createVerticalStrut(5));
+
+        JLabel balanceLabel = new JLabel(String.format("$%.2f", account.getBalance()));
+        balanceLabel.setFont(balanceLabel.getFont().deriveFont(Font.BOLD, 16));
+        balanceLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(balanceLabel);
+
+        card.add(contentPanel);
+
+        return card;
     }
 
     private static class AmountCellRenderer extends DefaultTableCellRenderer {
