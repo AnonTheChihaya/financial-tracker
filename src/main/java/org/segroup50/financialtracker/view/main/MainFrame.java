@@ -2,6 +2,7 @@ package org.segroup50.financialtracker.view.main;
 
 import org.segroup50.financialtracker.view.components.AboutDialog;
 import org.segroup50.financialtracker.view.main.account.AccountPanel;
+import org.segroup50.financialtracker.view.main.dashboard.DashboardPanel;
 import org.segroup50.financialtracker.view.main.profile.ProfilePanel;
 import org.segroup50.financialtracker.view.main.transaction.TransactionPanel;
 
@@ -39,7 +40,7 @@ public class MainFrame extends JFrame {
         tabbedPane.setPreferredSize(new Dimension(150, tabbedPane.getPreferredSize().height));
 
         // Add tabs
-        // addTab("Dashboard", new JPanel());
+        addTab("Dashboard", new DashboardPanel());
         addTab("Accounts", new AccountPanel());
         addTab("Transactions", new TransactionPanel());
         addTab("Profile", new ProfilePanel());
@@ -59,8 +60,7 @@ public class MainFrame extends JFrame {
         // Make the component fill the available space
         component.setPreferredSize(new Dimension(
                 Integer.MAX_VALUE,
-                Integer.MAX_VALUE
-        ));
+                Integer.MAX_VALUE));
         tabPanel.add(component, BorderLayout.CENTER);
 
         tabbedPane.addTab(title, tabPanel);
