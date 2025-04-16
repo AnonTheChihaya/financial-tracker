@@ -11,6 +11,7 @@ import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 public class TransactionImageProcessor {
     private static final String SYSTEM_PROMPT = """
@@ -46,7 +47,7 @@ public class TransactionImageProcessor {
                 .build();
     }
 
-    public String extractTransactionDetails(byte[] imageBytes) throws IOException {
+    public Map<String, String> extractTransactionDetails(byte[] imageBytes) throws IOException {
         String imageBase64 = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(imageBytes);
 
         ChatCompletionContentPart imagePart = ChatCompletionContentPart.ofImageUrl(
@@ -68,10 +69,28 @@ public class TransactionImageProcessor {
                 .addUserMessageOfArrayOfContentParts(List.of(instructionPart, imagePart))
                 .build();
 
-        return client.chat().completions().create(createParams)
+        String jsonResponse = client.chat().completions().create(createParams)
                 .choices().stream()
                 .findFirst()
                 .flatMap(choice -> choice.message().content())
                 .orElse("{}");
+
+        // Parse the JSON response into a Map
+        // In a real implementation, you would use a proper JSON parser like Jackson or Gson
+        return parseJsonResponse(jsonResponse);
+    }
+
+    private Map<String, String> parseJsonResponse(String json) {
+        // Simplified parsing - in a real app, use a proper JSON library
+        // This is just a placeholder implementation
+        java.util.Map<String, String> result = new java.util.HashMap<>();
+        String[] parts = json.replace("{", "").replace("}", "").replace("\"", "").split(",");
+        for (String part : parts) {
+            String[] keyValue = part.split(":");
+            if (keyValue.length == 2) {
+                result.put(keyValue[0].trim(), keyValue[1].trim());
+            }
+        }
+        return result;
     }
 }
