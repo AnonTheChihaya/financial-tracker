@@ -6,6 +6,7 @@ import org.segroup50.financialtracker.data.model.Account;
 import org.segroup50.financialtracker.data.model.Transaction;
 import org.segroup50.financialtracker.service.validation.transaction.TransactionValidation;
 import org.segroup50.financialtracker.service.validation.ValidationResult;
+import org.segroup50.financialtracker.service.utils.TransactionImageProcessor;
 import org.segroup50.financialtracker.view.components.InputField;
 
 import javax.swing.*;
@@ -13,19 +14,31 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-/**
- * A custom dialog for inputting new transaction information.
- * The dialog includes fields for date, amount, type, category, account, and notes.
- */
 public class TransactionInputDialog {
+    private static final String[] INCOME_CATEGORIES = {
+            "Salary", "Bonus", "Investment", "Freelance", "Rental Income",
+            "Gift", "Refund", "Dividend", "Interest", "Other Income"
+    };
+
+    private static final String[] EXPENSE_CATEGORIES = {
+            "Food & Dining", "Groceries", "Transportation", "Housing", "Utilities",
+            "Healthcare", "Insurance", "Entertainment", "Shopping", "Travel",
+            "Education", "Personal Care", "Debt Payment", "Gifts & Donations",
+            "Taxes", "Other Expense"
+    };
+
     public static Transaction showTransactionInputDialog(Component parentComponent) {
         JDialog dialog = new JDialog();
         dialog.setTitle("Add New Transaction");
         dialog.setModal(true);
-        dialog.setSize(400, 600);
+        dialog.setSize(450, 650);
 
         // Main panel with BoxLayout
         JPanel mainPanel = new JPanel();
@@ -40,15 +53,15 @@ public class TransactionInputDialog {
         mainPanel.add(titleLabel);
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // In the InputField dateField section, modify it like this:
+        // Date field
         InputField dateField = new InputField("Date (YYYY-MM-DD)", false);
         dateField.setAlignmentX(Component.LEFT_ALIGNMENT);
         dateField.setMaximumSize(new Dimension(Integer.MAX_VALUE, dateField.getPreferredSize().height));
-        // Add this line to set current date as default
         dateField.setText(java.time.LocalDate.now().toString());
         mainPanel.add(dateField);
         mainPanel.add(Box.createVerticalStrut(10));
 
+        // Amount field
         InputField amountField = new InputField("Amount", false);
         amountField.setAlignmentX(Component.LEFT_ALIGNMENT);
         amountField.setMaximumSize(new Dimension(Integer.MAX_VALUE, amountField.getPreferredSize().height));
@@ -75,13 +88,44 @@ public class TransactionInputDialog {
         mainPanel.add(typePanel);
         mainPanel.add(Box.createVerticalStrut(10));
 
-        InputField categoryField = new InputField("Category", false);
-        categoryField.setAlignmentX(Component.LEFT_ALIGNMENT);
-        categoryField.setMaximumSize(new Dimension(Integer.MAX_VALUE, categoryField.getPreferredSize().height));
-        mainPanel.add(categoryField);
+        // Category selection (using JComboBox with editable option)
+        JPanel categoryPanel = new JPanel();
+        categoryPanel.setLayout(new BoxLayout(categoryPanel, BoxLayout.Y_AXIS));
+        categoryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        categoryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+
+        JLabel categoryLabel = new JLabel("Category");
+        categoryLabel.setFont(categoryLabel.getFont().deriveFont(Font.PLAIN, 12));
+        categoryLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        categoryPanel.add(categoryLabel);
+        categoryPanel.add(Box.createVerticalStrut(5));
+
+        // Initialize with income categories since "Income" is the default selection
+        JComboBox<String> categoryCombo = new JComboBox<>(INCOME_CATEGORIES);
+        categoryCombo.setEditable(true);
+        categoryCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        categoryCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, categoryCombo.getPreferredSize().height));
+
+        // Update categories when transaction type changes
+        typeCombo.addActionListener(e -> {
+            String selectedType = (String) typeCombo.getSelectedItem();
+            categoryCombo.removeAllItems();
+            if ("Income".equals(selectedType)) {
+                for (String category : INCOME_CATEGORIES) {
+                    categoryCombo.addItem(category);
+                }
+            } else {
+                for (String category : EXPENSE_CATEGORIES) {
+                    categoryCombo.addItem(category);
+                }
+            }
+        });
+
+        categoryPanel.add(categoryCombo);
+        mainPanel.add(categoryPanel);
         mainPanel.add(Box.createVerticalStrut(10));
 
-        // Account selection (using JComboBox)
+        // Account selection
         JPanel accountPanel = new JPanel();
         accountPanel.setLayout(new BoxLayout(accountPanel, BoxLayout.Y_AXIS));
         accountPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -98,13 +142,11 @@ public class TransactionInputDialog {
         String currentUserId = CurrentUserConfig.getCurrentUserId();
         List<Account> userAccounts = accountDao.getAccountsByUserId(currentUserId);
 
-        // Create a combo box with account names and store account IDs as user data
         JComboBox<Account> accountCombo = new JComboBox<>();
         for (Account account : userAccounts) {
             accountCombo.addItem(account);
         }
 
-        // Set renderer to display account names
         accountCombo.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
@@ -125,10 +167,18 @@ public class TransactionInputDialog {
         mainPanel.add(accountPanel);
         mainPanel.add(Box.createVerticalStrut(10));
 
+        // Notes field
         InputField notesField = new InputField("Notes", false);
         notesField.setAlignmentX(Component.LEFT_ALIGNMENT);
         notesField.setMaximumSize(new Dimension(Integer.MAX_VALUE, notesField.getPreferredSize().height));
         mainPanel.add(notesField);
+        mainPanel.add(Box.createVerticalStrut(20));
+
+        // Upload image button (now placed just above the action buttons)
+        JButton uploadButton = new JButton("Upload Payment Screenshot");
+        uploadButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        uploadButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, uploadButton.getPreferredSize().height));
+        mainPanel.add(uploadButton);
         mainPanel.add(Box.createVerticalStrut(20));
 
         // Button panel
@@ -155,18 +205,53 @@ public class TransactionInputDialog {
         // Create transaction reference to return
         final Transaction[] transaction = new Transaction[1];
 
-        // Add button actions
+        // Add upload button action
+        uploadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Select Payment Screenshot");
+                int returnValue = fileChooser.showOpenDialog(dialog);
+
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    try {
+                        byte[] imageBytes = Files.readAllBytes(selectedFile.toPath());
+                        TransactionImageProcessor processor = new TransactionImageProcessor();
+                        Map<String, String> details = processor.extractTransactionDetails(imageBytes);
+
+                        // Update form fields with extracted data
+                        dateField.setText(details.getOrDefault("date", java.time.LocalDate.now().toString()));
+                        amountField.setText(details.getOrDefault("amount", ""));
+
+                        String type = details.getOrDefault("type", "Expense");
+                        typeCombo.setSelectedItem(type);
+
+                        String category = details.getOrDefault("category",
+                                "Income".equals(type) ? "Other Income" : "Other Expense");
+                        categoryCombo.setSelectedItem(category);
+
+                        notesField.setText(details.getOrDefault("notes", ""));
+
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(dialog,
+                                "Error processing image: " + ex.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String date = dateField.getText();
                 String amountText = amountField.getText();
                 String type = (String) typeCombo.getSelectedItem();
-                String category = categoryField.getText();
+                String category = (String) categoryCombo.getSelectedItem();
                 Account selectedAccount = (Account) accountCombo.getSelectedItem();
                 String note = notesField.getText();
 
-                // Use TransactionValidation service for input validation
                 ValidationResult validationResult =
                         TransactionValidation.validateTransactionInput(
                                 date,
@@ -185,20 +270,18 @@ public class TransactionInputDialog {
 
                 try {
                     double amount = Double.parseDouble(amountText);
-                    // Note: userId will be set by the TransactionPanel after this dialog returns
                     transaction[0] = new Transaction(
                             UUID.randomUUID().toString(),
                             date,
                             type.equals("Expense") ? -Math.abs(amount) : Math.abs(amount),
                             type,
                             category,
-                            selectedAccount.getId(), // Use the selected account's ID
-                            null, // userId will be set later
+                            selectedAccount.getId(),
+                            null,
                             note
                     );
                     dialog.dispose();
                 } catch (NumberFormatException ex) {
-                    // This shouldn't happen since we already validated the amount
                     JOptionPane.showMessageDialog(dialog, "Invalid amount format",
                             "Input Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -213,7 +296,6 @@ public class TransactionInputDialog {
             }
         });
 
-        // Center dialog on screen
         dialog.setLocationRelativeTo(parentComponent);
         dialog.setVisible(true);
 
