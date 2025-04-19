@@ -21,7 +21,7 @@
      EBU6304 Software Engineering - Group50 Project Repo
     <br />
     <br />
-    <a href="https://github.com/AnonTheChihaya/financial-tracker/releasese">Latest Release</a>
+    <a href="https://github.com/AnonTheChihaya/financial-tracker/releases">Latest Release</a>
     ·
     <a href="https://github.com/AnonTheChihaya/financial-tracker/issues">Report Bug</a>
   </p>
