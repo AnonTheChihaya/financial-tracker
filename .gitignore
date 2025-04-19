@@ -36,3 +36,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+accounts.csv
+transactions.csv
+users.csv
