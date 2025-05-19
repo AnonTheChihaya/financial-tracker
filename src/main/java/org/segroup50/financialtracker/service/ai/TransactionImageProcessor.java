@@ -1,4 +1,4 @@
-package org.segroup50.financialtracker.service.utils;
+package org.segroup50.financialtracker.service.ai;
 
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
