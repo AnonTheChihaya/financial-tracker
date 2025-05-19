@@ -2,11 +2,12 @@ package org.segroup50.financialtracker.view.main.transaction;
 
 import org.segroup50.financialtracker.config.CurrentUserConfig;
 import org.segroup50.financialtracker.data.dao.AccountDao;
+import org.segroup50.financialtracker.data.dao.TransactionDao;
 import org.segroup50.financialtracker.data.model.Account;
 import org.segroup50.financialtracker.data.model.Transaction;
 import org.segroup50.financialtracker.service.validation.transaction.TransactionValidation;
 import org.segroup50.financialtracker.service.validation.ValidationResult;
-import org.segroup50.financialtracker.service.utils.TransactionImageProcessor;
+import org.segroup50.financialtracker.service.ai.TransactionImageProcessor;
 import org.segroup50.financialtracker.view.components.InputField;
 
 import javax.swing.*;
@@ -14,9 +15,12 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,7 +42,7 @@ public class TransactionInputDialog {
         JDialog dialog = new JDialog();
         dialog.setTitle("Add New Transaction");
         dialog.setModal(true);
-        dialog.setSize(450, 650);
+        dialog.setSize(450, 700); // Increased height to accommodate import button
 
         // Main panel with BoxLayout
         JPanel mainPanel = new JPanel();
@@ -52,6 +56,19 @@ public class TransactionInputDialog {
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         mainPanel.add(titleLabel);
         mainPanel.add(Box.createVerticalStrut(20));
+
+        // Import CSV button
+        JButton importButton = new JButton("Import from CSV");
+        importButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        importButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, importButton.getPreferredSize().height));
+        importButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleCsvImport(dialog, parentComponent);
+            }
+        });
+        mainPanel.add(importButton);
+        mainPanel.add(Box.createVerticalStrut(15));
 
         // Date field
         InputField dateField = new InputField("Date (YYYY-MM-DD)", false);
@@ -300,5 +317,112 @@ public class TransactionInputDialog {
         dialog.setVisible(true);
 
         return transaction[0];
+    }
+
+    private static void handleCsvImport(JDialog parentDialog, Component parentComponent) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Select CSV File to Import");
+        int returnValue = fileChooser.showOpenDialog(parentDialog);
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try {
+                List<Transaction> transactions = parseCsvFile(selectedFile);
+                if (transactions.isEmpty()) {
+                    JOptionPane.showMessageDialog(parentDialog,
+                            "No valid transactions found in the CSV file",
+                            "Import Result", JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
+                // Show confirmation dialog with import summary
+                int confirm = JOptionPane.showConfirmDialog(parentDialog,
+                        "Found " + transactions.size() + " valid transactions. Import them?",
+                        "Confirm Import", JOptionPane.YES_NO_OPTION);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    TransactionDao transactionDao = new TransactionDao();
+                    int successCount = 0;
+
+                    for (Transaction transaction : transactions) {
+                        if (transactionDao.addTransaction(transaction)) {
+                            successCount++;
+                        }
+                    }
+
+                    JOptionPane.showMessageDialog(parentDialog,
+                            "Successfully imported " + successCount + " out of " + transactions.size() + " transactions",
+                            "Import Result", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(parentDialog,
+                        "Error reading CSV file: " + ex.getMessage(),
+                        "Import Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private static List<Transaction> parseCsvFile(File csvFile) throws IOException {
+        List<Transaction> transactions = new ArrayList<>();
+        String currentUserId = CurrentUserConfig.getCurrentUserId();
+        AccountDao accountDao = new AccountDao();
+        List<Account> userAccounts = accountDao.getAccountsByUserId(currentUserId);
+
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            boolean isFirstLine = true;
+
+            while ((line = br.readLine()) != null) {
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    continue; // Skip header line
+                }
+
+                String[] values = line.split(",");
+                if (values.length < 6) {
+                    continue; // Skip invalid lines
+                }
+
+                try {
+                    String date = values[0].trim();
+                    double amount = Double.parseDouble(values[1].trim());
+                    String type = values[2].trim();
+                    String category = values[3].trim();
+                    String accountName = values[4].trim();
+                    String note = values.length > 5 ? values[5].trim() : "";
+
+                    // Find matching account
+                    Account matchingAccount = null;
+                    for (Account account : userAccounts) {
+                        if (account.getName().equalsIgnoreCase(accountName)) {
+                            matchingAccount = account;
+                            break;
+                        }
+                    }
+
+                    if (matchingAccount == null) {
+                        continue; // Skip if account not found
+                    }
+
+                    // Create transaction
+                    Transaction transaction = new Transaction(
+                            UUID.randomUUID().toString(),
+                            date,
+                            type.equalsIgnoreCase("expense") ? -Math.abs(amount) : Math.abs(amount),
+                            type,
+                            category,
+                            matchingAccount.getId(),
+                            currentUserId,
+                            note
+                    );
+
+                    transactions.add(transaction);
+                } catch (NumberFormatException e) {
+                    continue; // Skip lines with invalid numbers
+                }
+            }
+        }
+
+        return transactions;
     }
 }
