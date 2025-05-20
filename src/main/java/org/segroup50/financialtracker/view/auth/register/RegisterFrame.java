@@ -3,6 +3,7 @@ package org.segroup50.financialtracker.view.auth.register;
 import org.segroup50.financialtracker.config.UserTotpTokenConfig;
 import org.segroup50.financialtracker.service.utils.TOTPSecretGenerator;
 import org.segroup50.financialtracker.view.components.AboutDialog;
+import org.segroup50.financialtracker.view.components.HelpDialog;
 
 import javax.swing.*;
 import java.awt.*;
@@ -81,15 +82,25 @@ public class RegisterFrame extends JFrame {
         // Create Help menu
         JMenu helpMenu = new JMenu("Help");
 
+        // Create Help Assistant menu item
+        JMenuItem helpAssistantItem = new JMenuItem("Help Assistant");
+        helpAssistantItem.addActionListener(e -> HelpDialog.showHelpDialog(this));
+        helpMenu.add(helpAssistantItem);
+
+        // Add separator
+        helpMenu.addSeparator();
+
         // Create About menu item
         JMenuItem aboutItem = new JMenuItem("About");
         aboutItem.addActionListener(e -> AboutDialog.showAboutDialog());
         helpMenu.add(aboutItem);
+
         menuBar.add(helpMenu);
 
         // Set the menu bar
         setJMenuBar(menuBar);
     }
+
 
     /**
      * Switches back to the register panel.
