@@ -91,9 +91,9 @@ Hello from Group 50!
 
 ### Sprint 3
 
-**User Stories:**  
+**Completed User Stories:**  
 ✅ **US009** Batch Transaction Import  
-✅ **US010** Financial Planning
+✅ **US010** Financial Planning  
 ✅ **US011** Savings Goal Tracking  
 ✅ **US012** Budget Plan Tracking  
 
@@ -110,7 +110,7 @@ Hello from Group 50!
 
 ### Sprint 4  
 
-**User Stories:**  
+**Completed User Stories:**  
 ✅ **US013** Recurring Payment Management  
 ✅ **US014** AI Financial Analysis Report  
 ✅ **US015** Abnormal Spending Alert  
