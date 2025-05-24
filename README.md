@@ -38,7 +38,7 @@ Hello from Group 50!
 | Name         | Email                     | GitHub Account        | Git Identity   |
 |--------------|---------------------------|-----------------------|----------------|
 | NIU Xijie    | <2121774069@qq.com>         | BE-betterday          | NIU Xijie      |
-| ZHANG Shuo   | <zhangshuo_se@163.com>      | AnonTheChihaya     | KatMelon       |
+| ZHANG Shuo   | <zhangshuo_se@163.com>      | [AnonTheChihaya](https://github.com/AnonTheChihaya)     | KatMelon       |
 | HUANG Yichen | <15092713836@163.com>       | AlicePotterr          | HUANG Yichen   |
 | LI Xinye     | <lxy15998403010@163.com>    | Gin-lxy               | LI Xinye       |
 | LIN Junming  | <streamingbench@gmail.com>  | streamingbenchvisual  | LIN Junming    |
