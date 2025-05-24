@@ -42,7 +42,7 @@ Hello from Group 50!
 | HUANG Yichen | <15092713836@163.com>       | AlicePotterr          | HUANG Yichen   |
 | LI Xinye     | <lxy15998403010@163.com>    | Gin-lxy               | LI Xinye       |
 | LIN Junming  | <streamingbench@gmail.com>  | streamingbenchvisual  | LIN Junming    |
-| MAO Xingzhi  | <raleighmxz@gmail.com>      | SoapMacTavish21       | MAO Xingzhi    |
+| MAO Xingzhi  | <raleighmxz@gmail.com>      | [SoapMacTavish21](https://github.com/SoapMacTavish21)       | MAO Xingzhi    |
 
 
 <a href="https://github.com/AnonTheChihaya/financial-tracker/graphs/contributors">
