@@ -37,12 +37,12 @@ Hello from Group 50!
 
 | Name         | Email                     | GitHub Account        | Git Identity   |
 |--------------|---------------------------|-----------------------|----------------|
-| NIU Xijie    | <2121774069@qq.com>         | BE-betterday          | NIU Xijie      |
-| ZHANG Shuo   | <zhangshuo_se@163.com>      | AnonTheChihaya     | KatMelon       |
+| NIU Xijie    | <2121774069@qq.com>         | [BE-betterday](https://github.com/BE-betterday)          | NIU Xijie      |
+| ZHANG Shuo   | <zhangshuo_se@163.com>      | [AnonTheChihaya](https://github.com/AnonTheChihaya)     | KatMelon       |
 | HUANG Yichen | <15092713836@163.com>       | [AlicePotterr](https://github.com/AlicePotterr)          | HUANG Yichen   |
-| LI Xinye     | <lxy15998403010@163.com>    | Gin-lxy               | LI Xinye       |
+| LI Xinye     | <lxy15998403010@163.com>    | [Gin-lxy](https://github.com/Gin-lxy)               | LI Xinye       |
 | LIN Junming  | <streamingbench@gmail.com>  | streamingbenchvisual  | LIN Junming    |
-| MAO Xingzhi  | <raleighmxz@gmail.com>      | SoapMacTavish21       | MAO Xingzhi    |
+| MAO Xingzhi  | <raleighmxz@gmail.com>      | [SoapMacTavish21](https://github.com/SoapMacTavish21)       | MAO Xingzhi    |
 
 
 <a href="https://github.com/AnonTheChihaya/financial-tracker/graphs/contributors">
@@ -61,14 +61,14 @@ Hello from Group 50!
 
 **Assignments:**  
 
-| GitHub Account      | Real Name     | Tasks                                                                 | GitHub PRs               |  
-|---------------------|--------------|----------------------------------------------------------------------|--------------------------|  
-| **AnonTheChihaya**  | ZHANG Shuo    | User Data Model/DAO/Validation (#1)                                  | #1 (Merged)              |  
-| **BE-betterday**    | NIU Xijie     | User-related Swing GUI (#2), Account Filter/Search (#10)             | #2, #10 (Merged)         |  
-| **SoapMacTavish21** | MAO Xingzhi   | Account Data Model/DAO/Validation (#3)                                | #3, #13 (Merged)         |  
-| **AlicePotterr**    | HUANG Yichen  | Transaction Data Model/DAO/Validation (#5)                           | #5, #9 (Merged)          |  
-| **Gin-lxy**         | LI Xinye      | Transaction-related Swing GUI (#6)                                  | #6, #12 (Merged)         |  
-| **streamingbenchvisual** | LIN Junming | Account-related Swing GUI (#4)                                | #4 (Merged)              |  
+| GitHub Account      | Real Name     | Tasks                                   |  
+|---------------------|--------------|----------------------------------------|  
+| **AnonTheChihaya**  | ZHANG Shuo    | User Data Model/DAO/Validation         |  
+| **BE-betterday**    | NIU Xijie     | User-related Swing GUI, Account Filter/Search |  
+| **SoapMacTavish21** | MAO Xingzhi   | Account Data Model/DAO/Validation       |  
+| **AlicePotterr**    | HUANG Yichen  | Transaction Data Model/DAO/Validation  |  
+| **Gin-lxy**         | LI Xinye      | Transaction-related Swing GUI          |  
+| **streamingbenchvisual** | LIN Junming | Account-related Swing GUI              |  
 
 ### Sprint 2
 
@@ -80,18 +80,52 @@ Hello from Group 50!
 
 **Assignments:**  
 
-| GitHub Account      | Real Name     | Tasks                                                                 | GitHub PRs               |  
-|---------------------|--------------|----------------------------------------------------------------------|--------------------------|  
-| **AlicePotterr**    | HUANG Yichen  | Dashboard Implementation (#9)                                        | #9 (Merged)              |  
-| **BE-betterday**    | NIU Xijie     | Transaction Filter/Search Function (#10)                             | #10 (Merged)             |  
-| **AnonTheChihaya**  | ZHANG Shuo    | Smart Transaction Auto-Input (#11)                                   | #11 (Merged)             |  
-| **Gin-lxy**         | LI Xinye      | JUnit Tests for Config/DAOs (#12)                                    | #12 (Merged)             |  
-| **SoapMacTavish21** | MAO Xingzhi   | JUnit Tests for Model/Util (#13)                                     | #13 (Merged)             |  
-| **streamingbenchvisual** | LIN Junming | JUnit Tests for Service Validators (#14)                      | #14 (Merged)             |  
+| GitHub Account      | Real Name     | Tasks                                   |  
+|---------------------|--------------|----------------------------------------|  
+| **AlicePotterr**    | HUANG Yichen  | Dashboard Implementation               |  
+| **BE-betterday**    | NIU Xijie     | Transaction Filter/Search Function     |  
+| **AnonTheChihaya**  | ZHANG Shuo    | Smart Transaction Auto-Input           |  
+| **Gin-lxy**         | LI Xinye      | JUnit Tests for Config/DAOs            |  
+| **SoapMacTavish21** | MAO Xingzhi   | JUnit Tests for Model/Util             |  
+| **streamingbenchvisual** | LIN Junming | JUnit Tests for Service Validators   s  |
 
-### Sprint 3&4
+### Sprint 3
 
-Coming soon...
+**Completed User Stories:**  
+✅ **US009** Batch Transaction Import  
+✅ **US010** Financial Planning  
+✅ **US011** Savings Goal Tracking  
+✅ **US012** Budget Plan Tracking  
+
+**Assignments:**  
+
+| GitHub Account      | Real Name     | Tasks                                                                 |  
+|---------------------|--------------|----------------------------------------------------------------------|  
+| **AnonTheChihaya**  | ZHANG Shuo    | Batch Transaction Import Implementation                             |  
+| **AlicePotterr**    | HUANG Yichen  | Savings Goal Tracking Interface                                      |  
+| **BE-betterday**    | NIU Xijie     | Savings Goal Data Model/DAO/Validation                               |  
+| **streamingbenchvisual** | LIN Junming | Budget Plan Tracking Interface                                      |  
+| **SoapMacTavish21** | MAO Xingzhi   | Budget Plan Data Model/DAO/Validation                               |  
+| **Gin-lxy**         | LI Xinye      | JUnit Tests for Savings & Budget Modules                            |  
+
+### Sprint 4  
+
+**Completed User Stories:**  
+✅ **US013** Recurring Payment Management  
+✅ **US014** AI Financial Analysis Report  
+✅ **US015** Abnormal Spending Alert  
+✅ **US016** AI Assistant Support  
+
+**Assignments:**  
+
+| GitHub Account      | Real Name     | Tasks                                                                 |  
+|---------------------|--------------|----------------------------------------------------------------------|  
+| **AnonTheChihaya**  | ZHANG Shuo    | AI Assistant Interface & Miscellaneous Tasks                         |  
+| **AlicePotterr**    | HUANG Yichen  | Recurring Payment Interface                                         |  
+| **BE-betterday**    | NIU Xijie     | Recurring Payment Data Model/DAO/Validation                         |  
+| **streamingbenchvisual** | LIN Junming | AI Analysis Report & Alert Business Logic + AI Prompts              |  
+| **SoapMacTavish21** | MAO Xingzhi   | AI Analysis Report & Alert Interfaces                               |  
+| **Gin-lxy**         | LI Xinye      | AI Assistant Business Logic + AI Prompts                            |  
 
 ## Quick Start
 

@@ -1,8 +1,12 @@
 package org.segroup50.financialtracker.view.main;
 
 import org.segroup50.financialtracker.view.components.AboutDialog;
+import org.segroup50.financialtracker.view.components.HelpDialog;
 import org.segroup50.financialtracker.view.main.account.AccountPanel;
+import org.segroup50.financialtracker.view.main.analysis.AnalysisPanel;
+import org.segroup50.financialtracker.view.main.autorenewal.AutoRenewalPanel;
 import org.segroup50.financialtracker.view.main.dashboard.DashboardPanel;
+import org.segroup50.financialtracker.view.main.financialplan.FinancialPlanPanel;
 import org.segroup50.financialtracker.view.main.profile.ProfilePanel;
 import org.segroup50.financialtracker.view.main.transaction.TransactionPanel;
 
@@ -43,6 +47,9 @@ public class MainFrame extends JFrame {
         addTab("Dashboard", new DashboardPanel());
         addTab("Accounts", new AccountPanel());
         addTab("Transactions", new TransactionPanel());
+        addTab("Financial Plan", new FinancialPlanPanel());
+        addTab("Auto Renewal", new AutoRenewalPanel());
+        addTab("Analysis", new AnalysisPanel());
         addTab("Profile", new ProfilePanel());
 
         // Add tabbed pane to main panel
@@ -60,7 +67,8 @@ public class MainFrame extends JFrame {
         // Make the component fill the available space
         component.setPreferredSize(new Dimension(
                 Integer.MAX_VALUE,
-                Integer.MAX_VALUE));
+                Integer.MAX_VALUE
+        ));
         tabPanel.add(component, BorderLayout.CENTER);
 
         tabbedPane.addTab(title, tabPanel);
@@ -79,13 +87,23 @@ public class MainFrame extends JFrame {
         // Create Help menu
         JMenu helpMenu = new JMenu("Help");
 
+        // Create Help Assistant menu item
+        JMenuItem helpAssistantItem = new JMenuItem("Help Assistant");
+        helpAssistantItem.addActionListener(e -> HelpDialog.showHelpDialog(this));
+        helpMenu.add(helpAssistantItem);
+
+        // Add separator
+        helpMenu.addSeparator();
+
         // Create About menu item
         JMenuItem aboutItem = new JMenuItem("About");
         aboutItem.addActionListener(e -> AboutDialog.showAboutDialog());
         helpMenu.add(aboutItem);
+
         menuBar.add(helpMenu);
 
         // Set the menu bar
         setJMenuBar(menuBar);
     }
+
 }
