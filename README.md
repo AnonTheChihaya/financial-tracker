@@ -41,7 +41,7 @@ Hello from Group 50!
 | ZHANG Shuo   | <zhangshuo_se@163.com>      | [AnonTheChihaya](https://github.com/AnonTheChihaya)     | KatMelon       |
 | HUANG Yichen | <15092713836@163.com>       | [AlicePotterr](https://github.com/AlicePotterr)          | HUANG Yichen   |
 | LI Xinye     | <lxy15998403010@163.com>    | [Gin-lxy](https://github.com/Gin-lxy)               | LI Xinye       |
-| LIN Junming  | <streamingbench@gmail.com>  | streamingbenchvisual  | LIN Junming    |
+| LIN Junming  | <streamingbench@gmail.com>  | [streamingbenchvisual](https://github.com/streamingbenchvisual)  | LIN Junming    |
 | MAO Xingzhi  | <raleighmxz@gmail.com>      | [SoapMacTavish21](https://github.com/SoapMacTavish21)       | MAO Xingzhi    |
 
 
